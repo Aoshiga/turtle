@@ -19,7 +19,7 @@ COMMENT ^"#".*
 
 {DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; }
 ^{QUIT}$              { yylval.quit = strdup(yytext); return QUIT;}
-{COMMENT}             { yylval.quit = strdup(yytext); return COMMENT;}
+{COMMENT}             { printf("%s\n",yytext);}
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }
