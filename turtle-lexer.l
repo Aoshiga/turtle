@@ -10,12 +10,10 @@
 %option warn 8bit nodefault noyywrap
 
 DIGIT [0-9]
-QUIT  'quit'
-COMMENT "#".*
-
+QUIT  "quit"
+COMMENT ^"#".*
 
 %%
-
 
 "forward"             { return KW_FORWARD; }
 
