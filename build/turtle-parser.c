@@ -110,8 +110,7 @@ extern int yydebug;
     VALUE = 258,
     NAME = 259,
     QUIT = 260,
-    COMMENT = 261,
-    KW_FORWARD = 262
+    KW_FORWARD = 261
   };
 #endif
 
@@ -127,7 +126,7 @@ union YYSTYPE
   const char *name;
   struct ast_node *node;
 
-#line 131 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:355  */
+#line 130 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -144,7 +143,7 @@ int yyparse (struct ast *ret);
 
 /* Copy the second part of user declarations.  */
 
-#line 148 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:358  */
+#line 147 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -384,23 +383,23 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  10
+#define YYFINAL  8
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   8
+#define YYLAST   5
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  10
+#define YYNTOKENS  7
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  8
+#define YYNRULES  7
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  13
+#define YYNSTATES  10
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   262
+#define YYMAXUTOK   261
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -410,9 +409,9 @@ union yyalloc
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       9,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     8,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -435,14 +434,14 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7
+       5,     6
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    39,    39,    43,    44,    48,    49,    50,    54
+       0,    38,    38,    42,    43,    47,    48,    52
 };
 #endif
 
@@ -452,8 +451,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "\"value\"", "\"name\"", "\"quit\"",
-  "\"#\"", "\"forward\"", "'#'", "'\\n'", "$accept", "unit", "cmds", "cmd",
-  "expr", YY_NULLPTR
+  "\"forward\"", "$accept", "unit", "cmds", "cmd", "expr", YY_NULLPTR
 };
 #endif
 
@@ -462,7 +460,7 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262,    35,    10
+       0,   256,   257,   258,   259,   260,   261
 };
 # endif
 
@@ -480,8 +478,7 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -5,    -6,    -2,    -2,     4,    -6,    -5,    -6,    -6,    -4,
-      -6,    -6,    -6
+      -5,    -6,    -1,     3,    -6,    -5,    -6,    -6,    -6,    -6
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -489,20 +486,19 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       4,     6,     0,     0,     0,     2,     4,     8,     5,     0,
-       1,     3,     7
+       4,     6,     0,     0,     2,     4,     7,     5,     1,     3
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -6,    -6,     0,    -6,     5
+      -6,    -6,     0,    -6,    -6
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     8
+      -1,     3,     4,     5,     7
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -510,32 +506,31 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       1,     7,     2,     3,    10,    12,    11,     0,     9
+       1,     2,     6,     8,     0,     9
 };
 
 static const yytype_int8 yycheck[] =
 {
-       5,     3,     7,     8,     0,     9,     6,    -1,     3
+       5,     6,     3,     0,    -1,     5
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     5,     7,     8,    11,    12,    13,     3,    14,    14,
-       0,    12,     9
+       0,     5,     6,     8,     9,    10,     3,    11,     0,     9
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    10,    11,    12,    12,    13,    13,    13,    14
+       0,     7,     8,     9,     9,    10,    10,    11
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     0,     2,     1,     3,     1
+       0,     2,     1,     2,     0,     2,     1,     1
 };
 
 
@@ -1214,49 +1209,43 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 39 "turtle-parser.y" /* yacc.c:1646  */
+#line 38 "turtle-parser.y" /* yacc.c:1646  */
     { (yyval.node) = (yyvsp[0].node); ret->unit = (yyval.node); }
-#line 1220 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1215 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 43 "turtle-parser.y" /* yacc.c:1646  */
+#line 42 "turtle-parser.y" /* yacc.c:1646  */
     { (yyvsp[-1].node)->next = (yyvsp[0].node); (yyval.node) = (yyvsp[-1].node); }
-#line 1226 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1221 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 44 "turtle-parser.y" /* yacc.c:1646  */
+#line 43 "turtle-parser.y" /* yacc.c:1646  */
     { (yyval.node) = NULL; }
-#line 1232 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1227 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 48 "turtle-parser.y" /* yacc.c:1646  */
+#line 47 "turtle-parser.y" /* yacc.c:1646  */
     { (yyval.node) = make_cmd_forward((yyvsp[0].node)); }
-#line 1238 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1233 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 49 "turtle-parser.y" /* yacc.c:1646  */
+#line 48 "turtle-parser.y" /* yacc.c:1646  */
     { printf("Application close\n"); exit(0); }
-#line 1244 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1239 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 50 "turtle-parser.y" /* yacc.c:1646  */
-    { printf("#%.10g\n", (yyvsp[-1].node)); }
-#line 1250 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
-    break;
-
-  case 8:
-#line 54 "turtle-parser.y" /* yacc.c:1646  */
+#line 52 "turtle-parser.y" /* yacc.c:1646  */
     { (yyval.node) = make_expr_value((yyvsp[0].value)); }
-#line 1256 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1245 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 1260 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
+#line 1249 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1484,7 +1473,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 58 "turtle-parser.y" /* yacc.c:1906  */
+#line 56 "turtle-parser.y" /* yacc.c:1906  */
 
 
 void yyerror(struct ast *ret, const char *msg) {

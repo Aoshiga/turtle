@@ -48,8 +48,7 @@ extern int yydebug;
     VALUE = 258,
     NAME = 259,
     QUIT = 260,
-    COMMENT = 261,
-    KW_FORWARD = 262
+    KW_FORWARD = 261
   };
 #endif
 
@@ -65,7 +64,7 @@ union YYSTYPE
   const char *name;
   struct ast_node *node;
 
-#line 69 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.h" /* yacc.c:1909  */
+#line 68 "/home/aoshiga/Documents/S6/AS/turtle/build/turtle-parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

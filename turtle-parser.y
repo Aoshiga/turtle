@@ -25,7 +25,6 @@ void yyerror(struct ast *ret, const char *);
 %token <value>    VALUE       "value"
 %token <name>     NAME        "name"
 %token <quit>     QUIT        "quit"
-%token <comment>  COMMENT     "#"
 
 %token            KW_FORWARD  "forward"
 /* TODO: add other tokens */
@@ -47,7 +46,6 @@ cmds:
 cmd:
     KW_FORWARD expr   { $$ = make_cmd_forward($2); }
   | QUIT              { printf("Application close\n"); exit(0); }
-  | '#' expr '\n'     { printf("#%.10g\n", $2); }
 ;
 
 expr:
