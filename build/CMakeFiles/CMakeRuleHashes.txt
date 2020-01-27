@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+d90c3fe39fbe86798dfc8a18aa7db393 turtle-lexer.c
+b805887bdcfd82522583166088d1e076 turtle-parser.c

@@ -1,0 +1,1 @@
+/usr/bin/cc -Wall -std=c99 -O2 -g  -rdynamic CMakeFiles/turtle.dir/turtle.c.o CMakeFiles/turtle.dir/turtle-ast.c.o CMakeFiles/turtle.dir/turtle-parser.c.o CMakeFiles/turtle.dir/turtle-lexer.c.o  -o turtle -lm 

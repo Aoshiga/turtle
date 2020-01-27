@@ -10,10 +10,16 @@
 %option warn 8bit nodefault noyywrap
 
 DIGIT [0-9]
+QUIT  "quit"
+COMMENT ^"#".*
 
 %%
 
+"forward"             { return KW_FORWARD; }
+
 {DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; }
+^{QUIT}$              { yylval.quit = strdup(yytext); return QUIT;}
+{COMMENT}             { yylval.quit = strdup(yytext); return COMMENT;}
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }

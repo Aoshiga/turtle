@@ -1,0 +1,3 @@
+/home/aoshiga/Documents/S6/AS/turtle/build/CMakeFiles/rebuild_cache.dir
+/home/aoshiga/Documents/S6/AS/turtle/build/CMakeFiles/turtle.dir
+/home/aoshiga/Documents/S6/AS/turtle/build/CMakeFiles/edit_cache.dir
