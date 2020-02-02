@@ -25,6 +25,7 @@ enum ast_func {
   FUNC_RANDOM,
   FUNC_SIN,
   FUNC_SQRT,
+  FUNC_TAN,
 };
 
 // kind of a node in the abstract syntax tree
@@ -38,6 +39,7 @@ enum ast_kind {
 
   KIND_EXPR_FUNC,
   KIND_EXPR_VALUE,
+  KIND_EXPR_UNOP,
   KIND_EXPR_BINOP,
   KIND_EXPR_BLOCK,
   KIND_EXPR_NAME,
@@ -52,7 +54,7 @@ struct ast_node {
   union {
     enum ast_cmd cmd;   // kind == KIND_CMD_SIMPLE
     double value;       // kind == KIND_EXPR_VALUE, for literals
-    char op;            // kind == KIND_EXPR_BINOP, for operators in expressions
+    char op;            // kind == KIND_EXPR_BINOP or kind == KIND_EXPR_UNOP, for operators in expressions
     const char *name;   // kind == KIND_EXPR_NAME, the name of procedures and variables
     enum ast_func func; // kind == KIND_EXPR_FUNC, a function
   } u;
@@ -64,12 +66,22 @@ struct ast_node {
 
 
 // TODO: make some constructors to use in parser.y
-// for example:
+
+// Constructor for operators
+struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_value(double value);
+struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
+struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
+struct ast_node *make_expr_block(char lhs, char rhs, struct ast_node *expr);
+struct ast_node *make_expr_color(const char *name);
 
-// Constructor of commands forward
+// Constructor of commands
 struct ast_node *make_cmd_forward(struct ast_node *expr);
+struct ast_node *make_cmd_color_from_keyword(struct ast_node *expr);
+struct ast_node *make_cmd_color_from_expr(struct ast_node *red, struct ast_node *green, struct ast_node *blue);
 
+// Constructor of commands quit
+void *make_cmd_quit();
 
 // root of the abstract syntax tree
 struct ast {

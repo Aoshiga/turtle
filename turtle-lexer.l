@@ -9,19 +9,42 @@
 
 %option warn 8bit nodefault noyywrap
 
-DIGIT [0-9]
-QUIT  "quit"
-COMMENT ^"#".*
+DIGIT           [0-9]
+ID              [A-Z][A-Z0-9]*
+INT             [1-9]{DIGIT}*|[0]
+DOUBLE          ({DIGIT}*"."{DIGIT}+)|({INT}"e-"{DIGIT})|{INT}
+QUIT            "quit"
+COMMENT         #.*
+COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"white"
 
 %%
 
-"forward"             { return KW_FORWARD; }
+"^"                   { return '^'; }
+"+"                   { return '+'; }
+"-"                   { return '-'; }
+"*"                   { return '*'; }
+"/"                   { return '/'; }
+"("                   { return '('; }
+")"                   { return ')'; }
+","                   { return ','; }
+"\n"                  { return '\n'; }
 
-{DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; }
-^{QUIT}$              { yylval.quit = strdup(yytext); return QUIT;}
+"color"               { return COLOR; }
+"forward"             { return KW_FORWARD; }
+"sin"                 { return SIN; }
+"cos"                 { return COS; }
+"tan"                 { return TAN; }
+"sqrt"                { return SQRT; }
+"random"              { return RANDOM; }
+
+{DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
+{COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
+{ID}                  { yylval.name = strdup(yytext); return NAME; }
+^{QUIT}               { yylval.quit = strtod(yytext, NULL); return QUIT;}
 {COMMENT}             { printf("%s\n", yytext); }
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }
 
 %%
+/* {DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; } */
