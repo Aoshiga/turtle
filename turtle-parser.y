@@ -34,6 +34,8 @@ void yyerror(struct ast *ret, const char *);
 %token            COLOR       "color"
 %token            KW_FORWARD  "forward"
 
+
+
 /* TODO: add other tokens */
 
 %left '^'
@@ -54,11 +56,12 @@ cmds:
 ;
 
 cmd:
-    KW_FORWARD expr '\n'      { $$ = make_cmd_forward($2); }
-  | QUIT '\n'                 { make_cmd_quit(); /*printf("Application close\n"); exit(0);*/ }
-  | COLOR expr '\n'           { $$ = make_cmd_color_from_keyword($2); }
-  | COLOR expr expr expr '\n' { $$ = make_cmd_color_from_expr($2, $3, $4); }
-  | expr '\n'                 { printf("expr >>\n"); }
+    '\n'
+  | KW_FORWARD expr       { $$ = make_cmd_forward($2); }
+  | QUIT                  { make_cmd_quit(); /*printf("Application close\n"); exit(0);*/ }
+  | COLOR expr            { $$ = make_cmd_color_from_keyword($2); }
+  | COLOR expr expr expr  { $$ = make_cmd_color_from_expr($2, $3, $4); }
+  | expr '\n'                     { ast_eval_expr($1); }
 ;
 
 expr:

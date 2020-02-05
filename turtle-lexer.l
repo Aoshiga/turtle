@@ -29,13 +29,14 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 ","                   { return ','; }
 "\n"                  { return '\n'; }
 
-"color"               { return COLOR; }
-"forward"             { return KW_FORWARD; }
 "sin"                 { return SIN; }
 "cos"                 { return COS; }
 "tan"                 { return TAN; }
 "sqrt"                { return SQRT; }
 "random"              { return RANDOM; }
+
+"color"               { return COLOR; }
+"forward"             { return KW_FORWARD; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }

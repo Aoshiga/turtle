@@ -15,6 +15,7 @@
 struct ast_node *make_expr_value(double value) {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
   node->kind = KIND_EXPR_VALUE;
+  node->children_count = 0; /// <--------------- Implement this, wasn't here at the beginning (comment writing for the report)
   node->u.value = value;
   return node;
 }
@@ -68,9 +69,6 @@ struct ast_node *make_expr_block(char lhs, char rhs, struct ast_node *expr)
 
 struct ast_node *make_expr_color(const char *name)
 {
-  // if(strcmp(name, "red") || strcmp(name, "green") || strcmp(name, "blue") || strcmp(name, "cyan") || strcmp(name, "yellow")
-  //   || strcmp(name, "magenta") || strcmp(name, "black") || strcmp(name, "gray") || strcmp(name, "white"))
-  // {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
   node->kind = KIND_EXPR_NAME;
   node->u.name = name;
@@ -138,6 +136,42 @@ void context_create(struct context *self) {
 void ast_eval(const struct ast *self, struct context *ctx) {
 
 }
+
+void ast_eval_expr(const struct ast_node *self)
+{
+  printf(">> %f\n", ast_eval_expr_value(self));
+}
+
+double ast_eval_expr_value(const struct ast_node *self)
+{
+  switch (self->kind) {
+    case KIND_EXPR_VALUE:
+      return self->u.value;
+      break;
+    case KIND_EXPR_BINOP:
+      switch (self->u.op) {
+        case '+' :
+          return ast_eval_expr_value(self->children[0]) + ast_eval_expr_value(self->children[1]);
+          break;
+        case '-' :
+          return ast_eval_expr_value(self->children[0]) - ast_eval_expr_value(self->children[1]);
+          break;
+        case '*' :
+          return ast_eval_expr_value(self->children[0]) * ast_eval_expr_value(self->children[0]);
+          break;
+        case '/' :
+          return ast_eval_expr_value(self->children[0]) / ast_eval_expr_value(self->children[1]);
+          break;
+      }
+      break;
+    default:
+      return 0;
+      break;
+  }
+
+  return 0;
+}
+
 
 /*
  * print
