@@ -58,15 +58,6 @@ struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, stru
   return node;
 }
 
-struct ast_node *make_expr_block(char lhs, char rhs, struct ast_node *expr)
-{
-  struct ast_node *node = calloc(1, sizeof(struct ast_node));
-  node->kind = KIND_EXPR_BLOCK;
-  node->children_count = 1;
-  node->children[0] = expr;
-  return node;
-}
-
 struct ast_node *make_expr_color(const char *name)
 {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
@@ -149,29 +140,78 @@ double ast_eval_expr_value(const struct ast_node *self)
       return self->u.value;
       break;
     case KIND_EXPR_BINOP:
-      switch (self->u.op) {
-        case '+' :
-          return ast_eval_expr_value(self->children[0]) + ast_eval_expr_value(self->children[1]);
-          break;
-        case '-' :
-          return ast_eval_expr_value(self->children[0]) - ast_eval_expr_value(self->children[1]);
-          break;
-        case '*' :
-          return ast_eval_expr_value(self->children[0]) * ast_eval_expr_value(self->children[0]);
-          break;
-        case '/' :
-          return ast_eval_expr_value(self->children[0]) / ast_eval_expr_value(self->children[1]);
-          break;
-      }
+      return ast_eval_expr_value_op(self);
       break;
+    case KIND_EXPR_UNOP:
+      return -ast_eval_expr_value(self->children[0]);
+      break;
+    case KIND_EXPR_FUNC:
+      return ast_eval_expr_value_func(self);
     default:
       return 0;
       break;
   }
-
-  return 0;
 }
 
+double ast_eval_expr_value_op(const struct ast_node *self)
+{
+  double x = ast_eval_expr_value(self->children[0]);
+  double y = ast_eval_expr_value(self->children[1]);
+  switch (self->u.op) {
+    case '+' :
+      return x+y;
+      break;
+    case '-' :
+      return x-y;
+      break;
+    case '*' :
+      return x*y;
+      break;
+    case '/' :
+      if(y == 0) {
+        printf("Error : Division by zero\n");
+        exit(1); // ERROR Division by 0 is forbiden                                //// TO DO exit //////
+      }
+      return x/y;
+      break;
+    case '^' :
+      return pow(x,y);
+    default :
+      return 0;
+      break;
+  }
+}
+
+double ast_eval_expr_value_func(const struct ast_node *self)
+{
+  double x = ast_eval_expr_value(self->children[0]);
+  switch (self->u.func) {
+    case FUNC_SIN :
+      return sin(x);
+      break;
+    case FUNC_COS :
+      return cos(x);
+      break;
+    case FUNC_TAN :
+      return tan(x);
+      break;
+    case FUNC_SQRT :
+      if(x < 0) {                                                                 /// TO DO ////////////
+        printf("Error : Sqrt of negative number\n");
+        exit(1); // ERROR sqrt must to be positive
+      }
+      return sqrt(x);;
+      break;
+    case FUNC_RANDOM :
+      {int min = (int)x;
+      int max = (int)ast_eval_expr_value(self->children[1]);
+      return (rand()%(max-min+1)+min);}
+      break;
+    default :
+      return 0;
+      break;
+  }
+}
 
 /*
  * print
