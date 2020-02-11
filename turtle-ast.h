@@ -72,7 +72,6 @@ struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, stru
 struct ast_node *make_expr_value(double value);
 struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
 struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
-struct ast_node *make_expr_block(char lhs, char rhs, struct ast_node *expr);
 struct ast_node *make_expr_color(const char *name);
 
 // Constructor of commands
@@ -116,5 +115,8 @@ void ast_eval(const struct ast *self, struct context *ctx);
 // evaluate expressions
 void ast_eval_expr(const struct ast_node *self);
 double ast_eval_expr_value(const struct ast_node *self);
+double ast_eval_expr_value_op(const struct ast_node *self);
+double ast_eval_expr_value_func(const struct ast_node *self);
+
 
 #endif /* TURTLE_AST_H */
