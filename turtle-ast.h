@@ -87,6 +87,8 @@ void *make_cmd_quit();
 struct ast {
   struct ast_node *unit;
 };
+//Helper functions
+void freeNode(struct ast_node *self);
 
 // do not forget to destroy properly! no leaks allowed!
 void ast_destroy(struct ast *self);

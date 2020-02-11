@@ -41,7 +41,6 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
 {ID}                  { yylval.name = strdup(yytext); return NAME; }
-^{QUIT}               { yylval.quit = strtod(yytext, NULL); return QUIT;}
 {COMMENT}             { printf("%s\n", yytext); }
 
 [\n\t ]*              /* whitespace */
@@ -49,3 +48,4 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 
 %%
 /* {DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; } */
+/*^{QUIT}               { yylval.quit = strtod(yytext, NULL); return QUIT;}*/

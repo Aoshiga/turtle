@@ -110,15 +110,36 @@ struct ast_node *make_cmd_forward(struct ast_node *expr)
   return node;
 }
 
-void *make_cmd_quit()
+/*void *make_cmd_quit(struct ast_node * self)
 {
   // TO DO - - - - destroy before quit
-  exit(0);
-}
+  if(self!=NULL)
+    freeNode(self);
+  self = NULL;
+  return self;
+}*/
 
 
 void ast_destroy(struct ast *self) {
+  printf("hello1");
+  if(self!=NULL){
+    struct ast_node * root = self->unit;
+    freeNode(root);
+  };
 
+}
+
+void freeNode(struct ast_node *self){
+    printf("hello2");
+
+  if(self!=NULL){
+    for(int i =0;i<self->children_count;++i){
+      freeNode(self->children[i]);
+    }
+    freeNode(self->next);
+    free(self);
+    self = NULL;
+  }
 }
 
 /*
@@ -139,7 +160,7 @@ void ast_eval(const struct ast *self, struct context *ctx) {
 
 void ast_eval_expr(const struct ast_node *self)
 {
-  printf(">> %f\n", ast_eval_expr_value(self));
+  printf(">> %f\n", ast_eval_expr_value(self)); 
 }
 
 double ast_eval_expr_value(const struct ast_node *self)

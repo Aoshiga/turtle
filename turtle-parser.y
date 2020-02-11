@@ -52,16 +52,17 @@ unit:
 
 cmds:
     cmd cmds                  { $1->next = $2; $$ = $1; }
-  | /* empty */               { $$ = NULL; }
+  | /* empty */               {$$ = NULL; }
+  
 ;
 
 cmd:
     '\n'
   | KW_FORWARD expr       { $$ = make_cmd_forward($2); }
-  | QUIT                  { make_cmd_quit(); /*printf("Application close\n"); exit(0);*/ }
+  /*| QUIT                  { make_cmd_quit($1);}*/
   | COLOR expr            { $$ = make_cmd_color_from_keyword($2); }
   | COLOR expr expr expr  { $$ = make_cmd_color_from_expr($2, $3, $4); }
-  | expr '\n'                     { ast_eval_expr($1); }
+  | expr                  { $$ = ast_eval_expr($1); }
 ;
 
 expr:
