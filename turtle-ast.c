@@ -206,7 +206,26 @@ void context_create(struct context *self) {
  */
 
 void ast_eval(const struct ast *self, struct context *ctx) {
-
+  if(self!=NULL)
+  {
+    switch (self->unit->kind) {
+      case KIND_CMD_SET:
+        break;
+      case KIND_CMD_CALL:
+        break;
+      case KIND_CMD_PROC:
+        break;
+      case KIND_CMD_BLOCK:
+        break;
+      case KIND_CMD_REPEAT:
+        break;
+      case KIND_CMD_SIMPLE:
+        break;
+      default:
+        ast_eval_expr(self->unit);
+        break;
+    }
+  }
 }
 
 /* Evaluation of the commands */
