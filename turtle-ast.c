@@ -8,6 +8,8 @@
 #include <math.h>
 
 #define PI 3.141592653589793
+#define SQRT2 1.41421356237309504880
+#define SQRT3 1.7320508075688772935
 
 /*
  * expressions
@@ -62,6 +64,7 @@ struct ast_node *make_expr_color(const char *name)
 {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
   node->kind = KIND_EXPR_NAME;
+  node->children_count = 0;
   node->u.name = name;
   return node;
 }
@@ -131,6 +134,26 @@ struct ast_node *make_cmd_down(struct ast_node *expr)
   return node;
 }
 
+struct ast_node *make_cmd_right(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_RIGHT;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
+struct ast_node *make_cmd_left(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_LEFT;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
 struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr2)
 {
   struct ast_node *node = calloc(1, sizeof(struct ast_node));
@@ -153,17 +176,13 @@ struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr
 
 
 void ast_destroy(struct ast *self) {
-  printf("hello1");
   if(self!=NULL){
     struct ast_node * root = self->unit;
     freeNode(root);
   };
-
 }
 
 void freeNode(struct ast_node *self){
-    printf("hello2");
-
   if(self!=NULL){
     for(int i =0;i<self->children_count;++i){
       freeNode(self->children[i]);
@@ -190,6 +209,27 @@ void ast_eval(const struct ast *self, struct context *ctx) {
 
 }
 
+/* Evaluation of the commands */
+// struct ast_node * ast_eval_cmd(const struct ast_node *self)
+// {
+//   switch (self->kind) {
+//     case KIND_CMD_SIMPLE:
+//       return ast_eval_cmd_simple(self);
+//       break;
+//   }
+// }
+//
+// /* Evaluation of the commands */
+// struct ast_node * ast_eval_cmd_simple(const struct ast_node *self)
+// {
+//   switch (self->u.cmd) {
+//     case CMD_COLOR:
+//       return
+//       break;
+//   }
+// }
+
+/* Evaluation of the expressions */
 struct ast_node * ast_eval_expr(const struct ast_node *self)
 {
   return make_expr_value(ast_eval_expr_value(self));
@@ -279,6 +319,137 @@ double ast_eval_expr_value_func(const struct ast_node *self)
  * print
  */
 
-void ast_print(const struct ast *self) {
+void ast_print(const struct ast *self)
+{
+  if(self!=NULL) {
+    struct ast_node * root = self->unit;
+    print_node(root);
+  }
+}
 
+void print_node(struct ast_node *self)
+{
+  if(self!=NULL)
+  {
+
+    int parentheses = false; //Boolean
+    int accolade = false; //Boolean
+    int comma = false; //Boolean
+
+    switch (self->kind) {
+      case KIND_CMD_SET:
+        printf("set ");
+        break;
+      case KIND_CMD_CALL:
+        printf("call ");
+        break;
+      case KIND_CMD_PROC:
+        printf("proc ");
+        break;
+      case KIND_CMD_BLOCK:
+        accolade = true;
+        printf("{ ");
+        break;
+      case KIND_CMD_REPEAT:
+        printf("repeat ");
+        break;
+      case KIND_CMD_SIMPLE:
+        switch (self->u.cmd) {
+          case CMD_DOWN:
+            printf("down ");
+            break;
+          case CMD_UP:
+            printf("up ");
+            break;
+          case CMD_LEFT:
+            printf("left ");
+            break;
+          case CMD_RIGHT:
+            printf("right ");
+            break;
+          case CMD_FORWARD:
+            printf("fw ");
+            break;
+          case CMD_BACKWARD:
+            printf("bw ");
+            break;
+          case CMD_HOME:
+            printf("home ");
+            break;
+          case CMD_PRINT:
+            printf("print ");
+            break;
+          case CMD_COLOR:
+            printf("color ");
+            break;
+          case CMD_HEADING:
+            printf("heading ");
+            break;
+          case CMD_POSITION:
+            printf("pos ");
+            break;
+        }
+        break;
+
+      case KIND_EXPR_FUNC:
+        switch (self->u.func) {
+          case FUNC_COS:
+            printf("cos( ");
+            parentheses = true;
+            break;
+          case FUNC_SIN:
+            printf("sin( ");
+            parentheses = true;
+            break;
+          case FUNC_TAN:
+            printf("tan( ");
+            parentheses = true;
+            break;
+          case FUNC_SQRT:
+            printf("sqrt( ");
+            parentheses = true;
+            break;
+          case FUNC_RANDOM:
+            printf("random( ");
+            parentheses = true;
+            comma = true;
+            break;
+        }
+        break;
+      case KIND_EXPR_NAME:
+        printf("%s", self->u.name);
+        break;
+      case KIND_EXPR_UNOP:
+      case KIND_EXPR_BINOP:
+        printf("%d", self->u.op);
+      case KIND_EXPR_BLOCK:
+        break;
+      case KIND_EXPR_VALUE:
+        printf("%f", self->u.value);
+        break;
+    }
+
+    for(int i=0; i<self->children_count; ++i) {
+      print_node(self->children[i]);
+      if(comma == true) {
+        printf(", ");
+        comma = false;
+      }
+    }
+
+    if(parentheses == true) {
+      printf(" ) ");
+      parentheses = false;
+    }
+    if(accolade == true) {
+      printf("} ");
+      accolade = false;
+    }
+
+    if(self->kind == KIND_CMD_SET || self->kind == KIND_CMD_CALL || self->kind == KIND_CMD_PROC || self->kind == KIND_CMD_BLOCK || self->kind == KIND_CMD_REPEAT || self->kind == KIND_CMD_SIMPLE) {
+      printf("\n");
+    }
+
+    print_node(self->next);
+  }
 }

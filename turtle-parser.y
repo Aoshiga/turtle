@@ -37,6 +37,8 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_UP       "up"
 %token            KW_DOWN     "down"
 %token            KW_POSITION "position"
+%token            KW_RIGHT    "right"
+%token            KW_LEFT     "left"
 
 
 
@@ -67,15 +69,16 @@ cmd:
   | KW_BACKWARD expr          { $$ = make_cmd_backward($2); }
   | KW_UP expr                { $$ = make_cmd_up($2); }
   | KW_DOWN expr              { $$ = make_cmd_down($2); }
+  | KW_RIGHT expr             { $$ = make_cmd_right($2); }
+  | KW_LEFT expr              { $$ = make_cmd_left($2); }
   | KW_POSITION expr expr     { $$ = make_cmd_position($2, $3); }
   | COLOR expr                { $$ = make_cmd_color_from_keyword($2); }
   | COLOR expr expr expr      { $$ = make_cmd_color_from_expr($2, $3, $4); }
-  | expr                      { $$ = ast_eval_expr($1); }
 ;
 
 expr:
     VALUE                     { $$ = make_expr_value($1); }
-  | NAME                      { printf(">> Name\n"); }
+  | NAME                      { $$ = make_expr_color($1); } /* ----- change it later */
   | expr '+' expr             { $$ = make_expr_binary_op('+', $1, $3); }
   | expr '-' expr             { $$ = make_expr_binary_op('-', $1, $3); }
   | expr '*' expr             { $$ = make_expr_binary_op('*', $1, $3); }

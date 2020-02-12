@@ -27,7 +27,6 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 "("                   { return '('; }
 ")"                   { return ')'; }
 ","                   { return ','; }
-"\n"                  { return '\n'; }
 
 "sin"                 { return SIN; }
 "cos"                 { return COS; }
@@ -36,11 +35,13 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 "random"              { return RANDOM; }
 
 "color"               { return COLOR; }
-"forward"             { return KW_FORWARD; }
-"backward"            { return KW_BACKWARD; }
+"forward"|"fw"        { return KW_FORWARD; }
+"backward"|"bw"       { return KW_BACKWARD; }
 "up"                  { return KW_UP; }
 "down"                { return KW_DOWN; }
-"position"            { return KW_POSITION; }
+"position"|"pos"      { return KW_POSITION; }
+"right"|"rt"          { return KW_RIGHT; }
+"left"|"lt"           { return KW_LEFT; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }

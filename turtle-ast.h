@@ -68,8 +68,9 @@ struct ast_node {
 // TODO: make some constructors to use in parser.y
 
 // Constructor for operators
-struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_value(double value);
+// struct ast_node *make_expr_name(const char *name);
+struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
 struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_color(const char *name);
@@ -79,6 +80,8 @@ struct ast_node *make_cmd_forward(struct ast_node *expr);
 struct ast_node *make_cmd_backward(struct ast_node *expr);
 struct ast_node *make_cmd_up(struct ast_node *expr);
 struct ast_node *make_cmd_down(struct ast_node *expr);
+struct ast_node *make_cmd_right(struct ast_node *expr);
+struct ast_node *make_cmd_left(struct ast_node *expr);
 struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_cmd_color_from_keyword(struct ast_node *expr);
 struct ast_node *make_cmd_color_from_expr(struct ast_node *red, struct ast_node *green, struct ast_node *blue);
@@ -112,6 +115,7 @@ void context_create(struct context *self);
 
 // print the tree as if it was a Turtle program
 void ast_print(const struct ast *self);
+void print_node(struct ast_node *self);
 
 // evaluate the tree and generate some basic primitives
 void ast_eval(const struct ast *self, struct context *ctx);
