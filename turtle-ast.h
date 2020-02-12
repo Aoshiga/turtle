@@ -76,6 +76,10 @@ struct ast_node *make_expr_color(const char *name);
 
 // Constructor of commands
 struct ast_node *make_cmd_forward(struct ast_node *expr);
+struct ast_node *make_cmd_backward(struct ast_node *expr);
+struct ast_node *make_cmd_up(struct ast_node *expr);
+struct ast_node *make_cmd_down(struct ast_node *expr);
+struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_cmd_color_from_keyword(struct ast_node *expr);
 struct ast_node *make_cmd_color_from_expr(struct ast_node *red, struct ast_node *green, struct ast_node *blue);
 
@@ -113,7 +117,7 @@ void ast_print(const struct ast *self);
 void ast_eval(const struct ast *self, struct context *ctx);
 
 // evaluate expressions
-void ast_eval_expr(const struct ast_node *self);
+struct ast_node * ast_eval_expr(const struct ast_node *self);
 double ast_eval_expr_value(const struct ast_node *self);
 double ast_eval_expr_value_op(const struct ast_node *self);
 double ast_eval_expr_value_func(const struct ast_node *self);

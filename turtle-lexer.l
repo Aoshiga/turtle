@@ -37,6 +37,10 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 
 "color"               { return COLOR; }
 "forward"             { return KW_FORWARD; }
+"backward"            { return KW_BACKWARD; }
+"up"                  { return KW_UP; }
+"down"                { return KW_DOWN; }
+"position"            { return KW_POSITION; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
