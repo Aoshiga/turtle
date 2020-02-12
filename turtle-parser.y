@@ -33,6 +33,10 @@ void yyerror(struct ast *ret, const char *);
 %token <quit>     QUIT        "quit"
 %token            COLOR       "color"
 %token            KW_FORWARD  "forward"
+%token            KW_BACKWARD "backward"
+%token            KW_UP       "up"
+%token            KW_DOWN     "down"
+%token            KW_POSITION "position"
 
 
 
@@ -55,14 +59,18 @@ unit:
 cmds:
     cmd cmds                  { $1->next = $2; $$ = $1; }
   | /* empty */               {$$ = NULL; }
-  
+
 ;
 
 cmd:
     KW_FORWARD expr           { $$ = make_cmd_forward($2); }
+  | KW_BACKWARD expr          { $$ = make_cmd_backward($2); }
+  | KW_UP expr                { $$ = make_cmd_up($2); }
+  | KW_DOWN expr              { $$ = make_cmd_down($2); }
+  | KW_POSITION expr expr     { $$ = make_cmd_position($2, $3); }
   | COLOR expr                { $$ = make_cmd_color_from_keyword($2); }
   | COLOR expr expr expr      { $$ = make_cmd_color_from_expr($2, $3, $4); }
-  | expr    '\n'                  { ast_eval_expr($1); }
+  | expr                      { $$ = ast_eval_expr($1); }
 ;
 
 expr:

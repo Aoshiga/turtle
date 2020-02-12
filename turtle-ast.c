@@ -101,6 +101,47 @@ struct ast_node *make_cmd_forward(struct ast_node *expr)
   return node;
 }
 
+struct ast_node *make_cmd_backward(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_BACKWARD;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
+struct ast_node *make_cmd_up(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_UP;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
+struct ast_node *make_cmd_down(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_DOWN;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
+struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr2)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_POSITION;
+  node->children_count = 2;
+  node->children[0] = expr1;
+  node->children[1] = expr2;
+  return node;
+}
+
 /*void *make_cmd_quit(struct ast_node * self)
 {
   // TO DO - - - - destroy before quit
@@ -149,9 +190,9 @@ void ast_eval(const struct ast *self, struct context *ctx) {
 
 }
 
-void ast_eval_expr(const struct ast_node *self)
+struct ast_node * ast_eval_expr(const struct ast_node *self)
 {
-  printf(">> %f\n", ast_eval_expr_value(self)); 
+  return make_expr_value(ast_eval_expr_value(self));
 }
 
 double ast_eval_expr_value(const struct ast_node *self)
