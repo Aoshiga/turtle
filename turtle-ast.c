@@ -198,6 +198,9 @@ void freeNode(struct ast_node *self){
  */
 
 void context_create(struct context *self) {
+   self->fp = fopen("turtle_exe", "w");
+   // fprintf(fp, "Hello file by fprintf...\n");//writing data into file
+   // fclose(fp);//closing file                                            ///// --------- TO DO : where can we close the file ??
 
 }
 
@@ -208,45 +211,64 @@ void context_create(struct context *self) {
 void ast_eval(const struct ast *self, struct context *ctx) {
   if(self!=NULL)
   {
-    switch (self->unit->kind) {
-      case KIND_CMD_SET:
-        break;
-      case KIND_CMD_CALL:
-        break;
-      case KIND_CMD_PROC:
-        break;
-      case KIND_CMD_BLOCK:
-        break;
-      case KIND_CMD_REPEAT:
-        break;
-      case KIND_CMD_SIMPLE:
-        break;
-      default:
-        ast_eval_expr(self->unit);
-        break;
-    }
+    struct ast_node * root = self->unit;
+    ast_eval_cmd(root, ctx);
+    // switch (self->unit->kind) {
+    //   case KIND_CMD_SET:
+    //     break;
+    //   case KIND_CMD_CALL:
+    //     break;
+    //   case KIND_CMD_PROC:
+    //     break;
+    //   case KIND_CMD_BLOCK:
+    //     break;
+    //   case KIND_CMD_REPEAT:
+    //     break;
+    //   case KIND_CMD_SIMPLE:
+    //     break;
+    //   default:
+    //     ast_eval_expr(self->unit);
+    //     break;
+    // }
   }
 }
 
 /* Evaluation of the commands */
-// struct ast_node * ast_eval_cmd(const struct ast_node *self)
-// {
-//   switch (self->kind) {
-//     case KIND_CMD_SIMPLE:
-//       return ast_eval_cmd_simple(self);
-//       break;
-//   }
-// }
-//
-// /* Evaluation of the commands */
-// struct ast_node * ast_eval_cmd_simple(const struct ast_node *self)
-// {
-//   switch (self->u.cmd) {
-//     case CMD_COLOR:
-//       return
-//       break;
-//   }
-// }
+void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
+{
+  if(self!=NULL)
+  {
+    switch (self->kind) {
+      case KIND_CMD_SIMPLE:
+        ast_eval_cmd_simple(self, ctx);
+        break;
+      default:
+        break;
+    }
+
+    ast_eval_cmd(self->next, ctx);
+  }
+
+
+}
+
+/* Evaluation of the simple commands */
+void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
+{
+  switch (self->u.cmd) {
+    case CMD_COLOR:
+      fprintf(ctx->fp, "Color");
+      if(self->children_count == 3) {
+        for(int i=0; i<self->children_count; i++) {
+          fprintf(ctx->fp, " ");
+          fprintf(ctx->fp, "%f", ast_eval_expr_value(self->children[i]));
+        }
+      }
+      break;
+    default:
+      break;
+  }
+}
 
 /* Evaluation of the expressions */
 struct ast_node * ast_eval_expr(const struct ast_node *self)

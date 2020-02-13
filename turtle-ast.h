@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // simple commands
 enum ast_cmd {
@@ -106,6 +107,9 @@ struct context {
   double angle;
   bool up;
 
+  FILE *fp;
+
+
   // TODO: add procedure handling
   // TODO: add variable handling
 };
@@ -119,6 +123,8 @@ void print_node(struct ast_node *self);
 
 // evaluate the tree and generate some basic primitives
 void ast_eval(const struct ast *self, struct context *ctx);
+void ast_eval_cmd(const struct ast_node *self, struct context *ctx);
+void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx);
 
 // evaluate expressions
 struct ast_node * ast_eval_expr(const struct ast_node *self);
