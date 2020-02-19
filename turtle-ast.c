@@ -501,12 +501,16 @@ void print_node(struct ast_node *self)
             break;
         }
         break;
+
       case KIND_EXPR_NAME:
         printf("%s", self->u.name);
         break;
       case KIND_EXPR_UNOP:
       case KIND_EXPR_BINOP:
-        printf("%d", self->u.op);
+        print_node(self->children[0]);
+        printf("%c", self->u.op);
+        print_node(self->children[1]);
+        break;
       case KIND_EXPR_BLOCK:
         break;
       case KIND_EXPR_VALUE:
@@ -514,11 +518,14 @@ void print_node(struct ast_node *self)
         break;
     }
 
-    for(int i=0; i<self->children_count; ++i) {
-      print_node(self->children[i]);
-      if(comma == true) {
-        printf(", ");
-        comma = false;
+    if(self->kind != KIND_EXPR_BINOP) {
+      for(int i=0; i<self->children_count; ++i) {
+        print_node(self->children[i]);
+
+        if(comma == true) {
+          printf(", ");
+          comma = false;
+        }
       }
     }
 
