@@ -165,6 +165,16 @@ struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr
   return node;
 }
 
+struct ast_node *make_cmd_print(struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_SIMPLE;
+  node->u.cmd = CMD_PRINT;
+  node->children_count = 1;
+  node->children[0] = expr;
+  return node;
+}
+
 /*void *make_cmd_quit(struct ast_node * self)
 {
   // TO DO - - - - destroy before quit
@@ -212,7 +222,7 @@ void ast_eval(const struct ast *self, struct context *ctx) {
   if(self!=NULL)
   {
     struct ast_node * root = self->unit;
-    ast_eval_cmd(root, ctx);
+    ast_eval_cmd(root);
     // switch (self->unit->kind) {
     //   case KIND_CMD_SET:
     //     break;
@@ -234,41 +244,72 @@ void ast_eval(const struct ast *self, struct context *ctx) {
 }
 
 /* Evaluation of the commands */
-void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
+void ast_eval_cmd(const struct ast_node *self)
 {
   if(self!=NULL)
   {
     switch (self->kind) {
       case KIND_CMD_SIMPLE:
-        ast_eval_cmd_simple(self, ctx);
+        ast_eval_cmd_simple(self);
         break;
       default:
         break;
     }
 
-    ast_eval_cmd(self->next, ctx);
+    ast_eval_cmd(self->next);
   }
 
 
 }
 
 /* Evaluation of the simple commands */
-void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
+void ast_eval_cmd_simple(const struct ast_node *self)
 {
   switch (self->u.cmd) {
+    case CMD_PRINT:
+      fprintf(stderr, "%f", ast_eval_expr_value(self->children[0]));
+      break;
     case CMD_COLOR:
-      fprintf(ctx->fp, "Color");
+      printf("Color");
       if(self->children_count == 3) {
         for(int i=0; i<self->children_count; i++) {
-          fprintf(ctx->fp, " ");
-          fprintf(ctx->fp, "%f", ast_eval_expr_value(self->children[i]));
+          printf(" ");
+          printf("%f", ast_eval_expr_value(self->children[i]));
         }
+      } else if(self->children_count == 1) {
+        ast_eval_cmd_simple_color(self->children[0]);
       }
       break;
     default:
       break;
   }
+  printf("\n");
 }
+
+void ast_eval_cmd_simple_color(const struct ast_node *self)
+{
+  const char * color = self->u.name;
+  if (strcmp(color, "red") == 0) {
+    printf(" 1.0 0.0 0.0");
+  } else if (strcmp(color, "blue") == 0) {
+    printf(" 0.0 1.0 0.0");
+  } else if (strcmp(color, "green") == 0) {
+    printf(" 0.0 0.0 1.0");
+  } else if (strcmp(color, "cyan") == 0) {
+    printf(" 0.0 1.0 1.0");
+  } else if (strcmp(color, "yellow") == 0) {
+    printf(" 1.0 0.0 1.0");
+  } else if (strcmp(color, "magenta") == 0) {
+    printf(" 1.0 1.0 0.0");
+  } else if (strcmp(color, "black") == 0) {
+    printf(" 0.0 0.0 0.0");
+  } else if (strcmp(color, "gray") == 0) {
+    printf(" 0.5 0.5 0.5");
+  } else if (strcmp(color, "white") == 0) {
+    printf(" 1.0 1.0 1.0");
+  }
+}
+
 
 /* Evaluation of the expressions */
 struct ast_node * ast_eval_expr(const struct ast_node *self)
@@ -355,6 +396,9 @@ double ast_eval_expr_value_func(const struct ast_node *self)
       break;
   }
 }
+
+
+
 
 /*
  * print

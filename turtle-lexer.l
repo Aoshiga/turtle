@@ -13,7 +13,6 @@ DIGIT           [0-9]
 ID              [A-Z][A-Z0-9]*
 INT             [1-9]{DIGIT}*|[0]
 DOUBLE          ({DIGIT}*"."{DIGIT}+)|({INT}"e-"{DIGIT})|{INT}
-QUIT            "quit"
 COMMENT         #.*
 COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"white"
 
@@ -42,6 +41,8 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 "position"|"pos"      { return KW_POSITION; }
 "right"|"rt"          { return KW_RIGHT; }
 "left"|"lt"           { return KW_LEFT; }
+
+"print"               { return PRINT; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }

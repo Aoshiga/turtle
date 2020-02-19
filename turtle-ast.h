@@ -86,6 +86,7 @@ struct ast_node *make_cmd_left(struct ast_node *expr);
 struct ast_node *make_cmd_position(struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_cmd_color_from_keyword(struct ast_node *expr);
 struct ast_node *make_cmd_color_from_expr(struct ast_node *red, struct ast_node *green, struct ast_node *blue);
+struct ast_node *make_cmd_print(struct ast_node *expr);
 
 // Constructor of commands quit
 void *make_cmd_quit();
@@ -123,8 +124,9 @@ void print_node(struct ast_node *self);
 
 // evaluate the tree and generate some basic primitives
 void ast_eval(const struct ast *self, struct context *ctx);
-void ast_eval_cmd(const struct ast_node *self, struct context *ctx);
-void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx);
+void ast_eval_cmd(const struct ast_node *self);
+void ast_eval_cmd_simple(const struct ast_node *self);
+void ast_eval_cmd_simple_color(const struct ast_node *self);
 
 // evaluate expressions
 struct ast_node * ast_eval_expr(const struct ast_node *self);

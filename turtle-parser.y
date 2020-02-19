@@ -40,6 +40,8 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_RIGHT    "right"
 %token            KW_LEFT     "left"
 
+%token            PRINT       "print"
+
 
 
 /* TODO: add other tokens */
@@ -74,6 +76,7 @@ cmd:
   | KW_POSITION expr expr     { $$ = make_cmd_position($2, $3); }
   | COLOR expr                { $$ = make_cmd_color_from_keyword($2); }
   | COLOR expr expr expr      { $$ = make_cmd_color_from_expr($2, $3, $4); }
+  | PRINT expr                { $$ = make_cmd_print($2); }
 ;
 
 expr:
