@@ -65,12 +65,23 @@ struct ast_node {
   struct ast_node *next;  // the next node in the sequence
 };
 
+// List used to save the variable define by the user
+struct variable {
+  struct variable_node *first;
+};
 
-// TODO: make some constructors to use in parser.y
+struct variable_node {
+  char* name;
+  double value;
+  struct variable_node *next;
+};
+
+//Initialize the list with PI, SQRT2 and SQRT3
+void variable_add(struct variable *self, char* name, double value);
 
 // Constructor for operators
 struct ast_node *make_expr_value(double value);
-// struct ast_node *make_expr_name(const char *name);
+struct ast_node *make_expr_name(char *name);
 struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
 struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
@@ -92,6 +103,7 @@ struct ast_node *make_cmd_print(struct ast_node *expr);
 // Construct other commands
 struct ast_node *make_cmd_block(struct ast_node *cmd);
 struct ast_node *make_cmd_repeat(struct ast_node *expr, struct ast_node *cmd);
+struct ast_node *make_cmd_set(struct ast_node *name, struct ast_node *expr);
 
 // Constructor of commands quit
 void *make_cmd_quit();
@@ -114,7 +126,7 @@ struct context {
   bool up;
 
   //we add the following element:
-  char* color;
+  struct variable var;
 
   // TODO: add procedure handling
   // TODO: add variable handling
@@ -134,9 +146,10 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx);
 void ast_eval_cmd_simple_color(const struct ast_node *self);
 
 // evaluate expressions
-double ast_eval_expr(const struct ast_node *self);
-double ast_eval_expr_op(const struct ast_node *self);
-double ast_eval_expr_func(const struct ast_node *self);
+double ast_eval_expr(const struct ast_node *self, struct context *ctx);
+double ast_eval_expr_op(const struct ast_node *self, struct context *ctx);
+double ast_eval_expr_func(const struct ast_node *self, struct context *ctx);
+double ast_eval_expr_name(const struct ast_node *self, struct context *ctx);
 
 
 #endif /* TURTLE_AST_H */

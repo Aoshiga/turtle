@@ -48,6 +48,7 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 "print"               { return KW_PRINT; }
 
 "repeat"              { return REPEAT; }
+"set"                 { return SET; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
 {COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
