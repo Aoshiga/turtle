@@ -70,7 +70,7 @@ struct ast_node *make_expr_color(char *name)
 }
 
 /*
- * commands
+ * Simple commands
  */
 struct ast_node *make_cmd_up()
 {
@@ -192,6 +192,28 @@ struct ast_node *make_cmd_print(struct ast_node *expr)
   return node;
 }
 
+/*
+ * Other commands
+ */
+struct ast_node *make_cmd_block(struct ast_node *cmd)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_BLOCK;
+  node->children_count = 1;
+  node->children[0] = cmd;
+  return node;
+}
+
+struct ast_node *make_cmd_repeat(struct ast_node *expr, struct ast_node *cmd)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_REPEAT;
+  node->children_count = 2;
+  node->children[0] = expr;
+  node->children[1] = cmd;
+  return node;
+}
+
 /**
 * Delete all the node at the end of the programm
 */
@@ -234,34 +256,27 @@ void ast_eval(const struct ast *self, struct context *ctx) {
   {
     struct ast_node * root = self->unit;
     ast_eval_cmd(root, ctx);
-    // switch (self->unit->kind) {
-    //   case KIND_CMD_SET:
-    //     break;
-    //   case KIND_CMD_CALL:
-    //     break;
-    //   case KIND_CMD_PROC:
-    //     break;
-    //   case KIND_CMD_BLOCK:
-    //     break;
-    //   case KIND_CMD_REPEAT:
-    //     break;
-    //   case KIND_CMD_SIMPLE:
-    //     break;
-    //   default:
-    //     ast_eval_expr(self->unit);
-    //     break;
-    // }
   }
 }
 
 /* Evaluation of the commands */
 void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
 {
+  int loop;
   if(self!=NULL)
   {
     switch (self->kind) {
       case KIND_CMD_SIMPLE:
         ast_eval_cmd_simple(self, ctx);
+        break;
+      case KIND_CMD_BLOCK:
+        ast_eval_cmd(self->children[0], ctx);
+        break;
+      case KIND_CMD_REPEAT:
+        loop = floor(ast_eval_expr(self->children[0]));
+        for(int i=0; i<loop; ++i) {
+          ast_eval_cmd(self->children[1], ctx);
+        }
         break;
       default:
         break;
@@ -278,32 +293,32 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
 {
   switch (self->u.cmd) {
     case CMD_FORWARD:
-      ctx->x += cos(ctx->angle * PI / 180.0)*ast_eval_expr_value(self->children[0]);
-      ctx->y += sin(ctx->angle * PI / 180.0)*ast_eval_expr_value(self->children[0]);
+      ctx->x += cos(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0]);
+      ctx->y += sin(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0]);
       if(!ctx->up){
         printf("LineTo %f %f", ctx->x, ctx->y);
       }
       break;
     case CMD_BACKWARD:
-      ctx->x -= cos(ctx->angle * PI / 180.0)*ast_eval_expr_value(self->children[0]);
-      ctx->y -= sin(ctx->angle * PI / 180.0)*ast_eval_expr_value(self->children[0]);
+      ctx->x -= cos(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0]);
+      ctx->y -= sin(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0]);
       if(!ctx->up){
         printf("LineTo %f %f", ctx->x, ctx->y);
       }
       break;
     case CMD_POSITION:
-      ctx->x = ast_eval_expr_value(self->children[0]);
-      ctx->y = ast_eval_expr_value(self->children[1]);
+      ctx->x = ast_eval_expr(self->children[0]);
+      ctx->y = ast_eval_expr(self->children[1]);
       printf("MoveTo %f %f", ctx->x, ctx->y);
       break;
     case CMD_RIGHT:
-      ctx->angle += ast_eval_expr_value(self->children[0]);
+      ctx->angle += ast_eval_expr(self->children[0]);
       break;
     case CMD_LEFT:
-      ctx->angle -= ast_eval_expr_value(self->children[0]);
+      ctx->angle -= ast_eval_expr(self->children[0]);
       break;
     case CMD_HEADING:
-      ctx->angle = ast_eval_expr_value(self->children[0])-90; //-90 cause 0 must to be the north -- in turtle-viewer, the north is -90
+      ctx->angle = ast_eval_expr(self->children[0])-90; //-90 cause 0 must to be the north -- in turtle-viewer, the north is -90
       break;
     case CMD_UP:
       ctx->up = true;
@@ -322,14 +337,14 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
       printf("Color ");
       if(self->children_count == 3) {
         for(int i=0; i<self->children_count; i++) {
-          printf("%f", ast_eval_expr_value(self->children[i]));
+          printf("%f ", ast_eval_expr(self->children[i]));
         }
       } else if(self->children_count == 1) {
         ast_eval_cmd_simple_color(self->children[0]);
       }
       break;
     case CMD_PRINT:
-      fprintf(stderr, "%f\n", ast_eval_expr_value(self->children[0]));
+      fprintf(stderr, "%f\n", ast_eval_expr(self->children[0]));
       break;
     default:
       break;
@@ -361,37 +376,30 @@ void ast_eval_cmd_simple_color(const struct ast_node *self)
   }
 }
 
-
-/* Evaluation of the expressions */
-struct ast_node * ast_eval_expr(const struct ast_node *self)
-{
-  return make_expr_value(ast_eval_expr_value(self));
-}
-
-double ast_eval_expr_value(const struct ast_node *self)
+double ast_eval_expr(const struct ast_node *self)
 {
   switch (self->kind) {
     case KIND_EXPR_VALUE:
       return self->u.value;
       break;
     case KIND_EXPR_BINOP:
-      return ast_eval_expr_value_op(self);
+      return ast_eval_expr_op(self);
       break;
     case KIND_EXPR_UNOP:
-      return -ast_eval_expr_value(self->children[0]);
+      return -ast_eval_expr(self->children[0]);
       break;
     case KIND_EXPR_FUNC:
-      return ast_eval_expr_value_func(self);
+      return ast_eval_expr_func(self);
     default:
       return 0;
       break;
   }
 }
 
-double ast_eval_expr_value_op(const struct ast_node *self)
+double ast_eval_expr_op(const struct ast_node *self)
 {
-  double x = ast_eval_expr_value(self->children[0]);
-  double y = ast_eval_expr_value(self->children[1]);
+  double x = ast_eval_expr(self->children[0]);
+  double y = ast_eval_expr(self->children[1]);
   switch (self->u.op) {
     case '+' :
       return x+y;
@@ -417,9 +425,9 @@ double ast_eval_expr_value_op(const struct ast_node *self)
   }
 }
 
-double ast_eval_expr_value_func(const struct ast_node *self)
+double ast_eval_expr_func(const struct ast_node *self)
 {
-  double x = ast_eval_expr_value(self->children[0]);
+  double x = ast_eval_expr(self->children[0]);
   switch (self->u.func) {
     case FUNC_SIN :
       return sin(x);
@@ -439,7 +447,7 @@ double ast_eval_expr_value_func(const struct ast_node *self)
       break;
     case FUNC_RANDOM :
       {int min = (int)x;
-      int max = (int)ast_eval_expr_value(self->children[1]);
+      int max = (int)ast_eval_expr(self->children[1]);
       return (rand()%(max-min+1)+min);}
       break;
     default :
@@ -481,7 +489,7 @@ void print_node(struct ast_node *self)
         break;
       case KIND_CMD_BLOCK:
         accolade = true;
-        printf("{ ");
+        printf(" {\n");
         break;
       case KIND_CMD_REPEAT:
         printf("repeat ");

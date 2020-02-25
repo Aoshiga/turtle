@@ -16,19 +16,18 @@ void yyerror(struct ast *ret, const char *);
 %parse-param { struct ast *ret }
 
 %union {
-  int quit;
   double value;
   char *name;
   struct ast_node *node;
 }
 
-%token <cos>      COS         "cos"
 %token <name>     NAME        "name"
-%token <random>   RANDOM      "random"
-%token <sin>      SIN         "sin"
-%token <sqrt>     SQRT        "sqrt"
-%token <tan>      TAN         "tan"
 %token <value>    VALUE       "value"
+%token <cos>      COS         "cos"
+%token <sin>      SIN         "sin"
+%token <tan>      TAN         "tan"
+%token <sqrt>     SQRT        "sqrt"
+%token <random>   RANDOM      "random"
 
 %token            KW_UP       "up"
 %token            KW_DOWN     "down"
@@ -42,9 +41,8 @@ void yyerror(struct ast *ret, const char *);
 %token            KW_COLOR    "color"
 %token            KW_PRINT    "print"
 
+%token            REPEAT      "repeat"
 
-
-/* TODO: add other tokens */
 
 %left '+' '-'
 %left '*' '/'
@@ -79,6 +77,8 @@ cmd:
   | KW_COLOR expr                   { $$ = make_cmd_color_from_keyword($2); }
   | KW_COLOR expr ',' expr ',' expr { $$ = make_cmd_color_from_expr($2, $4, $6); }
   | KW_PRINT expr                   { $$ = make_cmd_print($2); }
+  | '{' cmds '}'                    { $$ = make_cmd_block($2); } /* BLOCK */
+  | REPEAT expr cmd                 { $$ = make_cmd_repeat($2, $3); }
 ;
 
 expr:

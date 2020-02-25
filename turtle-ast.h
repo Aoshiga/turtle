@@ -56,7 +56,7 @@ struct ast_node {
     enum ast_cmd cmd;   // kind == KIND_CMD_SIMPLE
     double value;       // kind == KIND_EXPR_VALUE, for literals
     char op;            // kind == KIND_EXPR_BINOP or kind == KIND_EXPR_UNOP, for operators in expressions
-    char *name;   // kind == KIND_EXPR_NAME, the name of procedures and variables
+    char *name;         // kind == KIND_EXPR_NAME, the name of procedures and variables
     enum ast_func func; // kind == KIND_EXPR_FUNC, a function
   } u;
 
@@ -76,7 +76,7 @@ struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
 struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_color(char *name);
 
-// Constructor of commands
+// Constructor of simple commands
 struct ast_node *make_cmd_up();
 struct ast_node *make_cmd_down();
 struct ast_node *make_cmd_right(struct ast_node *expr);
@@ -89,6 +89,9 @@ struct ast_node *make_cmd_home();
 struct ast_node *make_cmd_color_from_keyword(struct ast_node *expr);
 struct ast_node *make_cmd_color_from_expr(struct ast_node *red, struct ast_node *green, struct ast_node *blue);
 struct ast_node *make_cmd_print(struct ast_node *expr);
+// Construct other commands
+struct ast_node *make_cmd_block(struct ast_node *cmd);
+struct ast_node *make_cmd_repeat(struct ast_node *expr, struct ast_node *cmd);
 
 // Constructor of commands quit
 void *make_cmd_quit();
@@ -131,10 +134,9 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx);
 void ast_eval_cmd_simple_color(const struct ast_node *self);
 
 // evaluate expressions
-struct ast_node * ast_eval_expr(const struct ast_node *self);
-double ast_eval_expr_value(const struct ast_node *self);
-double ast_eval_expr_value_op(const struct ast_node *self);
-double ast_eval_expr_value_func(const struct ast_node *self);
+double ast_eval_expr(const struct ast_node *self);
+double ast_eval_expr_op(const struct ast_node *self);
+double ast_eval_expr_func(const struct ast_node *self);
 
 
 #endif /* TURTLE_AST_H */
