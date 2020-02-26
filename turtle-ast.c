@@ -11,8 +11,8 @@
 #define SQRT2 1.41421356237309504880
 #define SQRT3 1.7320508075688772935
 
-/*
- * expressions
+/**
+ * Create ast_node expressions
  */
 struct ast_node *make_expr_name(char *name)
 {
@@ -70,17 +70,8 @@ struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, stru
   return node;
 }
 
-struct ast_node *make_expr_color(char *name)
-{
-  struct ast_node *node = calloc(1, sizeof(struct ast_node));
-  node->kind = KIND_EXPR_NAME;
-  node->children_count = 0;
-  node->u.name = name;
-  return node;
-}
-
-/*
- * Simple commands
+/**
+ * Create ast_node simple commands
  */
 struct ast_node *make_cmd_up()
 {
@@ -202,8 +193,8 @@ struct ast_node *make_cmd_print(struct ast_node *expr)
   return node;
 }
 
-/*
- * Other commands
+/**
+ * Create ast_node of other commands
  */
 struct ast_node *make_cmd_block(struct ast_node *cmd)
 {
@@ -274,68 +265,101 @@ void freeNode(struct ast_node *self){
   }
 }
 
-/*
- * Initialize the list of variables
+/**
+ * Add a new variable to the programm at the end of the variable list
  */
 void variable_add(struct variable *self, char* name, double value)
 {
-    struct variable_node *vn = malloc(sizeof(struct variable_node));
-    if(vn == NULL)
+  // Create a new variable
+  struct variable_node *vn = malloc(sizeof(struct variable_node));
+  if(vn == NULL)
+  {
+    printf("Allocation error");
+    return;
+  }
+
+  vn->value = value;
+  vn->name = name;
+  vn->next = NULL;
+
+  if(self->first == NULL) { self->first = vn; }
+  else {
+    struct variable_node *stepNext = self->first;
+    while (stepNext->next != NULL)
     {
-        printf("error of allocation");
-        return;
+      if(strcmp(stepNext->name, name) == 0) {
+        fprintf(stderr, "Redefinition of %s variable\n", name);
+        exit(1);
+      }
+      stepNext = stepNext->next;
     }
 
-    vn->value = value;
-    vn->name = name;
-    vn->next = NULL;
-
-    if(self->first == NULL) { self->first = vn; }
-    else
-    {
-        struct variable_node *stepNext = self->first;
-        while (stepNext->next != NULL)
-        {
-            stepNext = stepNext->next;
-        }
-
-        stepNext->next = vn;
+    // Last node (unaccessible in the while loop)
+    if(strcmp(stepNext->name, name) == 0) {
+      fprintf(stderr, "Redefinition of %s variable\n", name);
+      exit(1);
     }
+    stepNext->next = vn;
+  }
 }
 
-/*
- * Initialize the list of variables
+/**
+ * Add a new variable to the programm at the end of the variable list
  */
 void procedure_add(struct procedure *self, char* name, struct ast_node *unit)
 {
-    struct procedure_node *pn = malloc(sizeof(struct procedure_node));
-    if(pn == NULL)
+  // Throw an error if an another procedure is define inside the self procedure
+  if(unit->kind == KIND_CMD_PROC) {
+    fprintf(stderr, "Procedures cannot be defined in another procedure\n");
+    exit(1);
+  } else if (unit->kind == KIND_CMD_BLOCK) {
+    struct ast_node *stepNext = unit->children[0];
+    while(stepNext != NULL) {
+      if(stepNext->kind == KIND_CMD_PROC) {
+        fprintf(stderr, "Procedures cannot be defined in another procedure\n");
+        exit(1);
+      }
+      stepNext = stepNext->next;
+    }
+  }
+
+  // Create a new procedure
+  struct procedure_node *pn = malloc(sizeof(struct procedure_node));
+  if(pn == NULL)
+  {
+    printf("Allocation error");
+    return;
+  }
+
+  pn->cmd = unit;
+  pn->name = name;
+  pn->next = NULL;
+
+  if(self->first == NULL) { self->first = pn; }
+  else
+  {
+    struct procedure_node *stepNext = self->first;
+    while (stepNext->next != NULL)
     {
-        printf("error of allocation");
-        return;
+      if(strcmp(stepNext->name, name) == 0) {
+        fprintf(stderr, "Redefinition of %s procedure\n", name);
+        exit(1);
+      }
+      stepNext = stepNext->next;
     }
 
-    pn->cmd = unit;
-    pn->name = name;
-    pn->next = NULL;
-
-    if(self->first == NULL) { self->first = pn; }
-    else
-    {
-        struct procedure_node *stepNext = self->first;
-        while (stepNext->next != NULL)
-        {
-            stepNext = stepNext->next;
-        }
-
-        stepNext->next = pn;
+    // Last node (unaccessible in the while loop)
+    if(strcmp(stepNext->name, name) == 0) {
+      fprintf(stderr, "Redefinition of %s procedure\n", name);
+      exit(1);
     }
+    stepNext->next = pn;
+  }
 }
 
-/*
- * context
+/**
+ * initial context
  */
-
 void context_create(struct context *self) {
   self->x = 0;
   self->y = 0;
@@ -350,8 +374,8 @@ void context_create(struct context *self) {
   self->proc.first = NULL;
 }
 
-/*
- * eval
+/**
+ * Evaluate function : used to eval a turtle program
  */
 
 void ast_eval(const struct ast *self, struct context *ctx) {
@@ -362,7 +386,7 @@ void ast_eval(const struct ast *self, struct context *ctx) {
   }
 }
 
-/* Evaluation of the commands */
+// Evaluation of the commands
 void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
 {
   int loop;
@@ -385,11 +409,7 @@ void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
         variable_add(&ctx->var, self->children[0]->u.name, ast_eval_expr(self->children[1], ctx));
         break;
       case KIND_CMD_PROC:
-        if(self->children[1]->kind != KIND_CMD_PROC) {
-          procedure_add(&ctx->proc, self->children[0]->u.name, self->children[1]);
-        } else {
-          fprintf(stderr, "Procedures cannot be defined in another procedure\n");
-        }
+        procedure_add(&ctx->proc, self->children[0]->u.name, self->children[1]);
         break;
       case KIND_CMD_CALL:
         ast_eval_cmd_call(self->children[0], ctx);
@@ -402,6 +422,7 @@ void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
   }
 }
 
+// Evaluation of the commands call
 void ast_eval_cmd_call(const struct ast_node *self, struct context *ctx)
 {
   struct procedure_node *stepNext = ctx->proc.first;
@@ -409,17 +430,22 @@ void ast_eval_cmd_call(const struct ast_node *self, struct context *ctx)
   {
     if(strcmp(self->u.name, stepNext->name) == 0) {
       ast_eval_cmd(stepNext->cmd, ctx);
+      return;
     }
     stepNext = stepNext->next;
   }
 
-  //The last element of the list
+  // The last element of the list
   if(strcmp(self->u.name, stepNext->name) == 0) {
     ast_eval_cmd(stepNext->cmd, ctx);
+    return;
+  } else {
+    fprintf(stderr, "Undefined procedure %s\n", self->u.name);
+    exit(1);
   }
 }
 
-/* Evaluation of the simple commands */
+// Evaluation of the simple commands
 void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
 {
   switch (self->u.cmd) {
@@ -487,6 +513,7 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
   printf("\n");
 }
 
+// Evaluation of the simple color called with a keyword
 void ast_eval_cmd_simple_color(const struct ast_node *self)
 {
   const char * color = self->u.name;
@@ -511,6 +538,10 @@ void ast_eval_cmd_simple_color(const struct ast_node *self)
   }
 }
 
+/**
+ * Evaluation of expressions
+ * Return a double equal to the value of the current expressions
+ */
 double ast_eval_expr(const struct ast_node *self, struct context *ctx)
 {
   switch (self->kind) {
@@ -535,6 +566,7 @@ double ast_eval_expr(const struct ast_node *self, struct context *ctx)
   }
 }
 
+// Evaluation of an expressions of type name (= variable)
 double ast_eval_expr_name(const struct ast_node *self, struct context *ctx)
 {
   struct variable_node *stepNext = ctx->var.first;
@@ -549,10 +581,14 @@ double ast_eval_expr_name(const struct ast_node *self, struct context *ctx)
   //The last element of the list
   if(strcmp(self->u.name, stepNext->name) == 0) {
     return stepNext->value;
+  } else {
+    fprintf(stderr, "Undefined variable %s\n", self->u.name);
+    exit(1);
   }
   return 0;
 }
 
+// Evaluation of operations
 double ast_eval_expr_op(const struct ast_node *self, struct context *ctx)
 {
   double x = ast_eval_expr(self->children[0], ctx);
@@ -570,6 +606,7 @@ double ast_eval_expr_op(const struct ast_node *self, struct context *ctx)
     case '/' :
       if(y == 0) {
         fprintf(stderr, "Division by zero is forbiden\n");
+        exit(1);
       }
       return x/y;
       break;
@@ -582,6 +619,7 @@ double ast_eval_expr_op(const struct ast_node *self, struct context *ctx)
   }
 }
 
+// Evaluation of functions
 double ast_eval_expr_func(const struct ast_node *self, struct context *ctx)
 {
   double x = ast_eval_expr(self->children[0], ctx);
@@ -598,12 +636,17 @@ double ast_eval_expr_func(const struct ast_node *self, struct context *ctx)
     case FUNC_SQRT :
       if(x < 0) {
         fprintf(stderr, "Sqrt of negative number is forbiden\n");
+        exit(1);
       }
       return sqrt(x);;
       break;
     case FUNC_RANDOM :
       {int min = (int)x;
       int max = (int)ast_eval_expr(self->children[1], ctx);
+      if(min>max){
+        fprintf(stderr, "random x y with x<y is not respected: %d >= %d\n", min, max);
+        exit(1);
+      }
       return (rand()%(max-min+1)+min);}
       break;
     default :
@@ -614,7 +657,7 @@ double ast_eval_expr_func(const struct ast_node *self, struct context *ctx)
 
 
 /*
- * print
+ * Print the turtle program in the console
  */
 void ast_print(const struct ast *self)
 {
@@ -742,7 +785,7 @@ void print_node(struct ast_node *self)
         break;
     }
 
-
+    // Browse the children of each node eand print it
     if(self->kind != KIND_EXPR_BINOP && self->u.cmd != CMD_COLOR) {
       for(int i=0; i<self->children_count; ++i) {
         print_node(self->children[i]);
@@ -763,6 +806,7 @@ void print_node(struct ast_node *self)
       accolade = false;
     }
 
+    // Put a linebrak only at the end of a command
     if(self->kind == KIND_CMD_SET || self->kind == KIND_CMD_CALL || self->kind == KIND_CMD_PROC || self->kind == KIND_CMD_BLOCK || self->kind == KIND_CMD_REPEAT || self->kind == KIND_CMD_SIMPLE) {
       printf("\n");
     }

@@ -71,7 +71,6 @@ struct ast_node *make_expr_name(char *name);
 struct ast_node *make_expr_func(enum ast_func func, struct ast_node *expr1, struct ast_node *expr2);
 struct ast_node *make_expr_unary_op(char op, struct ast_node *expr);
 struct ast_node *make_expr_binary_op(char op, struct ast_node *expr1, struct ast_node *expr2);
-struct ast_node *make_expr_color(char *name);
 
 // Constructor of simple commands
 struct ast_node *make_cmd_up();

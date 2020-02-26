@@ -53,13 +53,11 @@ COLOR_VALUE     "red"|"green"|"blue"|"cyan"|"magenta"|"yellow"|"black"|"gray"|"w
 "call"                { return CALL; }
 
 {DOUBLE}              { yylval.value = strtod(yytext, NULL); return VALUE; }
-{COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
 {ID}                  { yylval.name = strdup(yytext); return NAME; }
+{COLOR_VALUE}         { yylval.name = strdup(yytext); return NAME; }
 {COMMENT}             { printf("%s\n", yytext); }
 
 [\n\t ]*              /* whitespace */
 .                     { fprintf(stderr, "Unknown token: '%s'\n", yytext); exit(EXIT_FAILURE); }
 
 %%
-/* {DIGIT}+              { yylval.value = strtod(yytext, NULL); return VALUE; } */
-/*^{QUIT}               { yylval.quit = strtod(yytext, NULL); return QUIT;}*/

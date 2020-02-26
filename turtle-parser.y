@@ -88,7 +88,7 @@ cmd:
 
 expr:
     VALUE                           { $$ = make_expr_value($1); }
-  | NAME                            { $$ = make_expr_color($1); }
+  | NAME                            { $$ = make_expr_name($1); }
   | expr '+' expr                   { $$ = make_expr_binary_op('+', $1, $3); }
   | expr '-' expr                   { $$ = make_expr_binary_op('-', $1, $3); }
   | expr '*' expr                   { $$ = make_expr_binary_op('*', $1, $3); }
