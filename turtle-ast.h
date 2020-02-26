@@ -65,20 +65,6 @@ struct ast_node {
   struct ast_node *next;  // the next node in the sequence
 };
 
-// List used to save the variable define by the user
-struct variable {
-  struct variable_node *first;
-};
-
-struct variable_node {
-  char* name;
-  double value;
-  struct variable_node *next;
-};
-
-//Initialize the list with PI, SQRT2 and SQRT3
-void variable_add(struct variable *self, char* name, double value);
-
 // Constructor for operators
 struct ast_node *make_expr_value(double value);
 struct ast_node *make_expr_name(char *name);
@@ -104,6 +90,8 @@ struct ast_node *make_cmd_print(struct ast_node *expr);
 struct ast_node *make_cmd_block(struct ast_node *cmd);
 struct ast_node *make_cmd_repeat(struct ast_node *expr, struct ast_node *cmd);
 struct ast_node *make_cmd_set(struct ast_node *name, struct ast_node *expr);
+struct ast_node *make_cmd_proc(struct ast_node *name, struct ast_node *expr);
+struct ast_node *make_cmd_call(struct ast_node *name);
 
 // Constructor of commands quit
 void *make_cmd_quit();
@@ -118,6 +106,32 @@ void freeNode(struct ast_node *self);
 // do not forget to destroy properly! no leaks allowed!
 void ast_destroy(struct ast *self);
 
+// List used to save the variable define by the user
+struct variable {
+  struct variable_node *first;
+};
+
+struct variable_node {
+  char* name;
+  double value;
+  struct variable_node *next;
+};
+
+// List used to save the procedure define by the user
+struct procedure {
+  struct procedure_node *first;
+};
+
+struct procedure_node {
+  char* name;
+  struct ast_node *cmd;
+  struct procedure_node *next;
+};
+
+// Add varable/procedure to the list of variable/procedure
+void variable_add(struct variable *self, char* name, double value);
+void procedure_add(struct procedure *self, char* name, struct ast_node *unit);
+
 // the execution context
 struct context {
   double x;
@@ -127,9 +141,7 @@ struct context {
 
   //we add the following element:
   struct variable var;
-
-  // TODO: add procedure handling
-  // TODO: add variable handling
+  struct procedure proc;
 };
 
 // create an initial context
@@ -144,6 +156,7 @@ void ast_eval(const struct ast *self, struct context *ctx);
 void ast_eval_cmd(const struct ast_node *self, struct context *ctx);
 void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx);
 void ast_eval_cmd_simple_color(const struct ast_node *self);
+void ast_eval_cmd_call(const struct ast_node *self, struct context *ctx);
 
 // evaluate expressions
 double ast_eval_expr(const struct ast_node *self, struct context *ctx);

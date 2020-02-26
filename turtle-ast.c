@@ -12,36 +12,6 @@
 #define SQRT3 1.7320508075688772935
 
 /*
- * Initialize the list of variables
- */
-void variable_add(struct variable *self, char* name, double value)
-{
-    struct variable_node *vn = malloc(sizeof(struct variable_node));
-    if(vn == NULL)
-    {
-        printf("error de malloc");
-        return;
-    }
-
-
-    vn->value = value;
-    vn->name = name;
-    vn->next = NULL;
-
-    if(self->first == NULL) { self->first = vn; }
-    else
-    {
-        struct variable_node *stepNext = self->first;
-        while (stepNext->next != NULL)
-        {
-            stepNext = stepNext->next;
-        }
-
-        stepNext->next = vn;
-    }
-}
-
-/*
  * expressions
  */
 struct ast_node *make_expr_name(char *name)
@@ -264,6 +234,25 @@ struct ast_node *make_cmd_set(struct ast_node *name, struct ast_node *expr)
   return node;
 }
 
+struct ast_node *make_cmd_proc(struct ast_node *name, struct ast_node *expr)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_PROC;
+  node->children_count = 2;
+  node->children[0] = name;
+  node->children[1] = expr;
+  return node;
+}
+
+struct ast_node *make_cmd_call(struct ast_node *name)
+{
+  struct ast_node *node = calloc(1, sizeof(struct ast_node));
+  node->kind = KIND_CMD_CALL;
+  node->children_count = 1;
+  node->children[0] = name;
+  return node;
+}
+
 /**
 * Delete all the node at the end of the programm
 */
@@ -286,6 +275,64 @@ void freeNode(struct ast_node *self){
 }
 
 /*
+ * Initialize the list of variables
+ */
+void variable_add(struct variable *self, char* name, double value)
+{
+    struct variable_node *vn = malloc(sizeof(struct variable_node));
+    if(vn == NULL)
+    {
+        printf("error of allocation");
+        return;
+    }
+
+    vn->value = value;
+    vn->name = name;
+    vn->next = NULL;
+
+    if(self->first == NULL) { self->first = vn; }
+    else
+    {
+        struct variable_node *stepNext = self->first;
+        while (stepNext->next != NULL)
+        {
+            stepNext = stepNext->next;
+        }
+
+        stepNext->next = vn;
+    }
+}
+
+/*
+ * Initialize the list of variables
+ */
+void procedure_add(struct procedure *self, char* name, struct ast_node *unit)
+{
+    struct procedure_node *pn = malloc(sizeof(struct procedure_node));
+    if(pn == NULL)
+    {
+        printf("error of allocation");
+        return;
+    }
+
+    pn->cmd = unit;
+    pn->name = name;
+    pn->next = NULL;
+
+    if(self->first == NULL) { self->first = pn; }
+    else
+    {
+        struct procedure_node *stepNext = self->first;
+        while (stepNext->next != NULL)
+        {
+            stepNext = stepNext->next;
+        }
+
+        stepNext->next = pn;
+    }
+}
+
+/*
  * context
  */
 
@@ -299,6 +346,8 @@ void context_create(struct context *self) {
   variable_add(&self->var, "PI", PI);
   variable_add(&self->var, "SQRT2", SQRT2);
   variable_add(&self->var, "SQRT3", SQRT3);
+
+  self->proc.first = NULL;
 }
 
 /*
@@ -335,14 +384,39 @@ void ast_eval_cmd(const struct ast_node *self, struct context *ctx)
       case KIND_CMD_SET:
         variable_add(&ctx->var, self->children[0]->u.name, ast_eval_expr(self->children[1], ctx));
         break;
+      case KIND_CMD_PROC:
+        if(self->children[1]->kind != KIND_CMD_PROC) {
+          procedure_add(&ctx->proc, self->children[0]->u.name, self->children[1]);
+        } else {
+          fprintf(stderr, "Procedures cannot be defined in another procedure\n");
+        }
+        break;
+      case KIND_CMD_CALL:
+        ast_eval_cmd_call(self->children[0], ctx);
+        break;
       default:
         break;
     }
 
     ast_eval_cmd(self->next, ctx);
   }
+}
 
+void ast_eval_cmd_call(const struct ast_node *self, struct context *ctx)
+{
+  struct procedure_node *stepNext = ctx->proc.first;
+  while (stepNext->next != NULL)
+  {
+    if(strcmp(self->u.name, stepNext->name) == 0) {
+      ast_eval_cmd(stepNext->cmd, ctx);
+    }
+    stepNext = stepNext->next;
+  }
 
+  //The last element of the list
+  if(strcmp(self->u.name, stepNext->name) == 0) {
+    ast_eval_cmd(stepNext->cmd, ctx);
+  }
 }
 
 /* Evaluation of the simple commands */
@@ -354,6 +428,8 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
       ctx->y += sin(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0], ctx);
       if(!ctx->up){
         printf("LineTo %f %f", ctx->x, ctx->y);
+      } else {
+        printf("MoveTo %f %f", ctx->x, ctx->y);
       }
       break;
     case CMD_BACKWARD:
@@ -361,6 +437,8 @@ void ast_eval_cmd_simple(const struct ast_node *self, struct context *ctx)
       ctx->y -= sin(ctx->angle * PI / 180.0)*ast_eval_expr(self->children[0], ctx);
       if(!ctx->up){
         printf("LineTo %f %f", ctx->x, ctx->y);
+      } else {
+        printf("MoveTo %f %f", ctx->x, ctx->y);
       }
       break;
     case CMD_POSITION:
@@ -491,13 +569,13 @@ double ast_eval_expr_op(const struct ast_node *self, struct context *ctx)
       break;
     case '/' :
       if(y == 0) {
-        printf("Error : Division by zero\n");
-        exit(1); // ERROR Division by 0 is forbiden                                //// TO DO exit //////
+        fprintf(stderr, "Division by zero is forbiden\n");
       }
       return x/y;
       break;
     case '^' :
       return pow(x,y);
+      break;
     default :
       return 0;
       break;
@@ -518,9 +596,8 @@ double ast_eval_expr_func(const struct ast_node *self, struct context *ctx)
       return tan(x);
       break;
     case FUNC_SQRT :
-      if(x < 0) {                                                                 /// TO DO ////////////
-        printf("Error : Sqrt of negative number\n");
-        exit(1); // ERROR sqrt must to be positive
+      if(x < 0) {
+        fprintf(stderr, "Sqrt of negative number is forbiden\n");
       }
       return sqrt(x);;
       break;

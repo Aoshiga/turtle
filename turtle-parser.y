@@ -43,6 +43,8 @@ void yyerror(struct ast *ret, const char *);
 
 %token            REPEAT      "repeat"
 %token            SET         "set"
+%token            PROC        "proc"
+%token            CALL        "call"
 
 %left '+' '-'
 %left '*' '/'
@@ -80,6 +82,8 @@ cmd:
   | '{' cmds '}'                    { $$ = make_cmd_block($2); } /* BLOCK */
   | REPEAT expr cmd                 { $$ = make_cmd_repeat($2, $3); }
   | SET expr expr                   { $$ = make_cmd_set($2, $3); }
+  | PROC expr cmd                   { $$ = make_cmd_proc($2, $3); }
+  | CALL expr                       { $$ = make_cmd_call($2); }
 ;
 
 expr:
